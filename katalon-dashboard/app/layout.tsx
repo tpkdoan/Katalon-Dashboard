@@ -1,16 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-
-// const geistSans = Geist({
-//   variable: "--font-geist-sans",
-//   subsets: ["latin"],
-// });
+import AppLayout from "./components/AppLayout";
 
 const inter = Inter({ subsets: ['latin'] });
-
-
-
 
 export const metadata: Metadata = {
   title: "Katalon Dashboard",
@@ -27,7 +20,9 @@ export default function RootLayout({
       <body
         className={`${inter.className} antialiased`}
       >
-        {children}
+        <AppLayout>
+          {children}
+        </AppLayout>
       </body>
     </html>
   );
