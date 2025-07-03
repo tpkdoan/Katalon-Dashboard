@@ -109,8 +109,6 @@ function SidebarComponent({
             const showArrow =
                 hasUserClickedFeedback &&
                 (openFeedbackIds.length > 0 || selectedFeedbackId);
-            const isFeedbackActive =
-                getIsActive("feedback-review") || isInFeedbackDetail;
 
             return (
                 <div key={tab.id}>

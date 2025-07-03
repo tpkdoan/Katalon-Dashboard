@@ -166,6 +166,12 @@ export function FeedbackReview({ onFeedbackSelect }: { onFeedbackSelect: (id: st
             ? "bg-green-100 text-green-700 border border-green-500"
             : "bg-red-100 text-red-700 border border-red-500";
 
+    // const getStatusStyle = (type: "good" | "bad") =>
+    //     type === "good"
+    //         ? "text-emerald-700 bg-emerald-100"
+    //         : "text-red-600 bg-red-100";
+
+
     const getActiveFiltersCount = () => {
         let count = 0;
         if (typeFilter !== "all") count++;
@@ -210,10 +216,10 @@ export function FeedbackReview({ onFeedbackSelect }: { onFeedbackSelect: (id: st
         return (
             <div className="p-6">
                 <div className="animate-pulse space-y-4">
-                    <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
+                    <div className="h-8 bg-gray-200 rounded w-1/4"></div>
                     <div className="space-y-3">
                         {[...Array(5)].map((_, i) => (
-                            <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                            <div key={i} className="h-16 bg-gray-200 rounded"></div>
                         ))}
                     </div>
                 </div>
@@ -226,7 +232,7 @@ export function FeedbackReview({ onFeedbackSelect }: { onFeedbackSelect: (id: st
             {/* Search and Filters */}
             <div className="flex items-center gap-3">
                 <div className="flex-1 relative">
-                    <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 h-4 w-4" />
+                    <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                     <input
                         type="text"
                         placeholder="Search by ID or response..."
@@ -239,7 +245,7 @@ export function FeedbackReview({ onFeedbackSelect }: { onFeedbackSelect: (id: st
                 <div className="relative" ref={filterRef}>
                     <button
                         onClick={() => setIsFilterOpen(!isFilterOpen)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg bg-[#F9F9FA] hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer ${getActiveFiltersCount() > 0 ? '' : ''
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg bg-[#F9F9FA] hover:bg-gray-50 transition-colors cursor-pointer ${getActiveFiltersCount() > 0 ? '' : ''
                             }`}
                     >
                         <FaFilter className="h-4 w-4" />
@@ -253,11 +259,11 @@ export function FeedbackReview({ onFeedbackSelect }: { onFeedbackSelect: (id: st
                     </button>
 
                     {isFilterOpen && (
-                        <div className="absolute right-0 top-full mt-1 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-10 p-4">
+                        <div className="absolute right-0 top-full mt-1 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-4">
                             <div className="space-y-4">
                                 {/* Filter by Type */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
                                         Type
                                     </label>
                                     <select
@@ -273,7 +279,7 @@ export function FeedbackReview({ onFeedbackSelect }: { onFeedbackSelect: (id: st
 
                                 {/* Filter by Model */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
                                         Model
                                     </label>
                                     <select
@@ -293,7 +299,7 @@ export function FeedbackReview({ onFeedbackSelect }: { onFeedbackSelect: (id: st
                                 {/* Filter by Date */}
                                 <div className="grid grid-cols-2 gap-2">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Start Date
                                         </label>
                                         <input
@@ -304,7 +310,7 @@ export function FeedbackReview({ onFeedbackSelect }: { onFeedbackSelect: (id: st
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
                                             End Date
                                         </label>
                                         <input
@@ -378,7 +384,7 @@ export function FeedbackReview({ onFeedbackSelect }: { onFeedbackSelect: (id: st
                 </table>
 
                 {filtered.length === 0 && (
-                    <div className="text-center p-6 text-gray-500 dark:text-gray-400">
+                    <div className="text-center p-6 text-gray-500">
                         No feedback matched your filters.
                     </div>
                 )}
