@@ -98,6 +98,10 @@ function SidebarComponent({
     ];
 
     const getIsActive = (id: string) => {
+        if (id === "feedback-review") {
+            // Special handling for feedback review tab
+            return pathname === "/feedback" && !isInFeedbackDetail;
+        }
         return id === activeTab;
     };
 
@@ -115,10 +119,10 @@ function SidebarComponent({
                     <div className="flex items-center justify-between z-50"></div>
                     <button
                         onClick={() => handleNavigate(tab.id)}
-                        className={`group w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm transition-colors cursor-pointer hover:bg-gray-100${pathname === "/feedback"
-                            ? "bg-white text-black font-bold hover:bg-white" // Only apply bg on parent
+                        className={`group w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm transition-colors cursor-pointer hover:bg-gray-100 ${getIsActive(tab.id)
+                            ? "bg-white text-black font-bold hover:bg-white"
                             : isInFeedbackDetail
-                                ? "text-black font-bold" // Only font-bold on child
+                                ? "text-black font-bold" // Only font-bold when in detail page
                                 : "text-black hover:bg-gray-100 font-medium"
                             }`}
                     >
@@ -178,7 +182,7 @@ function SidebarComponent({
                                                 className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded text-sm  transition-colors cursor-pointer
                                                     ${selectedFeedbackId ===
                                                         id
-                                                        ? "text-[#292D32] bg-white"
+                                                        ? "text-[#292D32] bg-white font-bold"
                                                         : "text-black hover:bg-gray-100 font-medium"
                                                     }`}
                                             >

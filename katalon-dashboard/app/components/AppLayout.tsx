@@ -28,8 +28,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 return prev;
             });
         } else if (pathname === "/feedback") {
-            // On feedback review page, keep selected feedback but don't clear it
-            // This allows the sidebar to show the dropdown
+            // On feedback review page, clear selected feedback to avoid highlighting detail items
+            setSelectedFeedbackId(null);
         } else {
             // On other pages, clear selected feedback
             setSelectedFeedbackId(null);
