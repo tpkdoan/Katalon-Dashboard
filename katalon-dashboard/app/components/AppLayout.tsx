@@ -56,7 +56,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <div className="flex h-screen bg-white dark:bg-[#171717]">
+        <div className="flex h-screen bg-white">
             <Sidebar
                 mobileOpen={mobileOpen}
                 setMobileOpen={setMobileOpen}
