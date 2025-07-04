@@ -37,13 +37,13 @@ export function Charts() {
                                 {value}
                             </div>
                         </div>
-                        <span className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                        <span className="text-xs text-gray-600 mt-2">
                             {labels[index]}
                         </span>
                     </div>
                 ))}
             </div>
-            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-4">
+            <div className="flex justify-between text-xs text-gray-500 mt-4">
                 <span>0</span>
                 <span>{Math.round(maxValue / 2)}</span>
                 <span>{maxValue}</span>

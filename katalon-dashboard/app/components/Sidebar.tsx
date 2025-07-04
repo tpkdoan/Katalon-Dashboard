@@ -231,11 +231,11 @@ function SidebarComponent({
     return (
         <>
             {/* Desktop Sidebar */}
-            <aside className="bg-[#F7F8FA] dark:bg-[#171717] hidden md:flex flex-col h-screen z-[9998]">
+            <aside className="bg-[#F7F8FA] hidden md:flex flex-col h-screen z-[9998]">
                 <motion.div
                     animate={{ width: isExpanded ? 280 : 64 }}
                     transition={{ type: "spring", stiffness: 260, damping: 30 }}
-                    className="bg-[#F7F8FA] dark:bg-[#171717] flex flex-col h-full"
+                    className="bg-[#F7F8FA] flex flex-col h-full"
                     style={{ minWidth: 0 }}
                 >
                     <div className="">
@@ -249,7 +249,7 @@ function SidebarComponent({
                                         height={15}
                                     />
                                     <div className="flex-1 min-w-0">
-                                        <div className="font-medium text-gray-900 truncate dark:text-white text-md">
+                                        <div className="font-medium text-gray-900 truncate text-md">
                                             Admin
                                         </div>
                                     </div>
@@ -351,7 +351,7 @@ function SidebarComponent({
                         onClick={() => setMobileOpen(false)}
                     >
                         <div
-                            className="bg-[#F7F8FA] dark:bg-[#171717] w-4/5 h-full shadow-lg"
+                            className="bg-[#F7F8FA] w-4/5 h-full shadow-lg"
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div className="flex justify-end px-4 pt-4">
