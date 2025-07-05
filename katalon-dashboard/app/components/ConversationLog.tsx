@@ -8,7 +8,7 @@ interface ConversationLogItem {
     createdAt: string;
 }
 
-export function ConversationLog({ onFeedbackSelect }: { onFeedbackSelect: (id: string) => void }) {
+export function ConversationLog({ onConversationSelect }: { onConversationSelect: (id: string) => void }) {
     const [conversationLog, setConversationLog] = useState<ConversationLogItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isSortOpen, setIsSortOpen] = useState(false);
@@ -201,7 +201,7 @@ export function ConversationLog({ onFeedbackSelect }: { onFeedbackSelect: (id: s
                             <tr
                                 key={fb.conversationId + fb.createdAt}
                                 className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
-                                onClick={() => onFeedbackSelect(fb.conversationId)}
+                                onClick={() => onConversationSelect(fb.conversationId)}
                             >
                                 <td className="px-6 py-4 font-semibold text-[#363636]">{fb.conversationId}</td>
                                 <td className="px-6 py-4">

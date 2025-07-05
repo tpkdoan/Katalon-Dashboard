@@ -9,5 +9,5 @@ export default function ConversationPage() {
         router.push(`/conversation/${id}`);
     };
 
-    return <ConversationLog onFeedbackSelect={handleSelect} />;
+    return <ConversationLog onConversationSelect={handleSelect} />;
 }

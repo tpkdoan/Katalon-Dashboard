@@ -4,20 +4,22 @@ import { AiOutlineLike, AiOutlineDislike } from "react-icons/ai";
 import { FaSearch } from "react-icons/fa";
 import Image from "next/image";
 import styles from "./ChatWidget.module.css";
-interface ConversationDetail {
+
+interface ConversationLogDetail {
   id: string;
   conversationId: string;
-}
-
-interface Message {
   model: string;
   userQuestion: string;
   aiResponse: string;
   type: "good" | "bad";
 }
 
-export function ConversationLogDetail({ conversationId }: { conversationId: string }) {
-  const [conversation, setConversation] = useState<Message[]>([]);
+interface ConversationLogDetailProps {
+  conversationId: string;
+}
+
+export function ConversationLogDetail({ conversationId }: ConversationLogDetailProps) {
+  const [conversation, setConversation] = useState<ConversationLogDetail[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -28,8 +30,10 @@ export function ConversationLogDetail({ conversationId }: { conversationId: stri
       await new Promise((resolve) => setTimeout(resolve, 800));
 
       // Mock data for conversation detail
-      const mockMessages: Message[] = [
+    const mockMessages: ConversationLogDetail[] = [
         {
+          id: conversationId,
+          conversationId: "987XYZOOJJ",
           model: "gpt-4o is using",
           userQuestion:
             "Every time I run my test suite in Katalon Studio, it crashes at the same step with an 'Element not found' error, even though the element is clearly visible in the DOM. I've tried using wait commands but it still fails.",
@@ -38,6 +42,8 @@ export function ConversationLogDetail({ conversationId }: { conversationId: stri
           type: "good",
         },
         {
+          id:  conversationId,
+          conversationId: "987XYZOOJJ",
           model: "Claude 3 is using",
           userQuestion:
             "Every time I run my test suite in Katalon Studio, it crashes at the same step with an 'Element not found' error, even though the element is clearly visible in the DOM. I've tried using wait commands but it still fails.",
@@ -119,27 +125,27 @@ export function ConversationLogDetail({ conversationId }: { conversationId: stri
                 <p className="text-black">{msg.aiResponse}</p>
             </div>
             <div className="flex items-start gap-2 mt-4">
-            
-            <div>
                 <div className="mt-2">
                 {msg.type === "good" ? (
-                    <span className="text-emerald-500 font-medium text-sm">Good response</span>
-                ) : (
-                    <span className="text-red-500 font-medium text-sm">Bad response</span>
-                )}
-                {msg.type === "bad" && (
-                    <div>
-                    <div className="flex items-center gap-2 text-red-600 font-normal">
-                        <div className="border border-red-600 rounded-full p-1.5 bg-red-600 text-white">
-                            <AiOutlineDislike />
+                    <div className="flex items-center gap-2 text-green-600 font-normal">
+                        <div className="border border-green-600 rounded-full p-1.5 bg-green-600 text-white">
+                            <AiOutlineLike />
                         </div>
-                        Bad response
+                        Good response
                     </div>
-                    
-                </div>
+                ) : (
+                    <div>
+                        <div className="flex items-center gap-2 text-red-600 font-normal">
+                            <div className="border border-red-600 rounded-full p-1.5 bg-red-600 text-white">
+                                <AiOutlineDislike />
+                            </div>
+                            Bad response
+                        </div>
+                        <div className="mt-4 border border-red-600 rounded-md p-2 bg-gray-100">Inappropriate response/Offensive</div>
+                    </div>
+                   
                 )}
                 </div>
-            </div>
             </div>
         </div>
       ))}

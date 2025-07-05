@@ -1,6 +1,9 @@
-import {ConversationLogDetail} from "../../components/ConservationLogDetail";
+import { ConversationLogDetail } from "../../components/ConversationLogDetail";
 
-// TEMP: force override PageProps constraint
-export default function ConversationDetailPage({ params }: any) {
-    return <ConversationLogDetail conversationId={params.id} />;
+export default function ConversationDetailPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  return <ConversationLogDetail conversationId={params.id} />;
 }
