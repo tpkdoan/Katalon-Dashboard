@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
+import { ConversationProvider } from "./ConversationContext";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -111,7 +112,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             />
             <main className="flex-1 flex flex-col overflow-hidden">
                 <Header onOpenSidebar={() => setMobileOpen(true)} />
-                <div className="flex-1 overflow-auto">{children}</div>
+                <div className="flex-1 overflow-auto">
+                    <ConversationProvider onConversationSelect={handleConversationSelect}>
+                        {children}
+                    </ConversationProvider>
+                </div>
             </main>
         </div>
     );
