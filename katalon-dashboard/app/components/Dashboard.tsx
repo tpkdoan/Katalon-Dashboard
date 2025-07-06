@@ -2,6 +2,8 @@ import { Charts } from "./Charts";
 import { TotalQuestionPieChart } from "./TotalQuestionPieChart";
 import { TopSelectedModelBarChart } from "./TopSelectedModelBarchart";
 import { SessionCard } from "./SessionCard";
+import { WeeklyAnswerChart } from "./WeeklyAnswerChart";
+
 export default function Dashboard() {
     return (
         <div className="p-6 space-y-6">
@@ -31,7 +33,7 @@ export default function Dashboard() {
 
             {/* Row 3: Questions by Handling Mode */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                <Charts />
+                <WeeklyAnswerChart />
             </div>
         </div>
     );

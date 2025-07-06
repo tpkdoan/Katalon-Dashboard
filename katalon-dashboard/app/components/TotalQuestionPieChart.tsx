@@ -36,19 +36,19 @@ export function TotalQuestionPieChart() {
             onClick={() => setIsFilterOpen(!isFilterOpen)}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#F9F9FA] hover:bg-gray-50 transition-colors cursor-pointer shadow-xs"
           >
-            <span>This Week</span>
+            <span>{filter}</span>
             <FaChevronDown className={`h-3 w-3 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} />
           </button>
           {isFilterOpen && (
             <div className="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
               <button
-                onClick={() => setFilter("This week")}
+                onClick={() => { setFilter("This week"); setIsFilterOpen(false); }}
                 className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 "
               >
                 This Week
               </button>
               <button
-                onClick={() => setFilter("This month")}
+                onClick={() => { setFilter("This month"); setIsFilterOpen(false); }}
                 className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 "
               >
                 This Month
