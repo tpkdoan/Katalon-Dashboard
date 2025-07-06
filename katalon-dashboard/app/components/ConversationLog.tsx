@@ -161,6 +161,7 @@ export function ConversationLog({ onConversationSelect }: { onConversationSelect
                 <div className="relative select-none" ref={sortRef}>
                     <span className="text-gray-500 mr-2">Sorted by :</span>
                     <button
+                        title="Sort by"
                         onClick={() => setIsSortOpen(!isSortOpen)}
                         className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#F9F9FA] font-semibold text-[#23272F] focus:outline-none hover:bg-gray-50 transition-colors cursor-pointer"
                         style={{ fontWeight: 700 }}

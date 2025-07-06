@@ -1,7 +1,7 @@
 import { Charts } from "./Charts";
 import { TotalQuestionPieChart } from "./TotalQuestionPieChart";
 import { TopSelectedModelBarChart } from "./TopSelectedModelBarchart";
-
+import { SessionCard } from "./SessionCard";
 export default function Dashboard() {
     return (
         <div className="p-6 space-y-6">
@@ -12,14 +12,10 @@ export default function Dashboard() {
             {/* Row 1: Session & Avg Questions/User */}
             <div className="grid grid-cols-2 gap-6">
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col justify-between">
-                    <div className="text-sm font-semibold text-gray-700">Session</div>
-                    <div className="text-3xl font-bold mt-2">256</div>
-                    <div className="text-green-600 font-semibold mt-2">+15.03%</div>
+                    <SessionCard title="Session" value={100} percent={10} />
                 </div>
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col justify-between">
-                    <div className="text-sm font-semibold text-gray-700">Average Questions/User</div>
-                    <div className="text-3xl font-bold mt-2">3,7</div>
-                    <div className="text-green-600 font-semibold mt-2">+6.08%</div>
+                    <SessionCard title="Average Questions/User" value={3.7} percent={6.08} />
                 </div>
             </div>
 
@@ -29,14 +25,13 @@ export default function Dashboard() {
                     <TotalQuestionPieChart />
                 </div>
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                    <div className="text-sm font-semibold mb-2">Top Selected Model</div>
                     <TopSelectedModelBarChart />
                 </div>
             </div>
 
             {/* Row 3: Questions by Handling Mode */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                <div className="text-sm font-semibold mb-2">Questions by Handling Mode</div>
+                <Charts />
             </div>
         </div>
     );

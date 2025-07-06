@@ -1,20 +1,27 @@
 "use client";
 import { FaFilter, FaChevronDown } from 'react-icons/fa';
-// components/PieChartCard.tsx
-import { PieChart, Pie, Cell } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { useState } from 'react';
-const data = [
+const dataMonth = [
   { name: 'Good', value: 4030890, color: '#222' },
   { name: 'Bad', value: 2398039, color: '#7ECFFF' },
   { name: 'Not rating', value: 1387980, color: '#8CF2C6' },
+];
+const dataWeek = [
+  { name: 'Good', value: 4030890, color: '#222' },
+  { name: 'Bad', value: 2000000, color: '#7ECFFF' },
+  { name: 'Not rating', value: 1000000, color: '#8CF2C6' },
 ];
 
 // const COLORS = data.map(d => d.color);
 
 
 export function TotalQuestionPieChart() {
-  const total = data.reduce((sum, d) => sum + d.value, 0);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filter, setFilter] = useState("This week");
+  const chartData = filter === "This week" ? dataWeek : dataMonth;
+  const total = chartData.reduce((sum, d) => sum + d.value, 0);
+
 
   return (
     <div className="flex flex-col w-full h-full">
@@ -35,11 +42,13 @@ export function TotalQuestionPieChart() {
           {isFilterOpen && (
             <div className="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
               <button
+                onClick={() => setFilter("This week")}
                 className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 "
               >
                 This Week
               </button>
               <button
+                onClick={() => setFilter("This month")}
                 className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 "
               >
                 This Month
@@ -50,12 +59,12 @@ export function TotalQuestionPieChart() {
       </div>
 
       {/* Content */}
-      <div className="flex items-center justify-between mt-2">
+      <div className="flex flex-col md:flex-row items-center md:items-end justify-between mt-2 gap-6">
         {/* Pie Chart */}
-        <div>
-          <PieChart width={300} height={200}>
+        <div className="w-full md:w-1/2 flex justify-center">
+          <PieChart width={220} height={180}>
             <Pie
-              data={data}
+              data={chartData}
               cx="50%"
               cy="50%"
               innerRadius={45}
@@ -63,16 +72,17 @@ export function TotalQuestionPieChart() {
               paddingAngle={5}
               dataKey="value"
             >
-              {data.map((entry, idx) => (
+              {chartData.map((entry, idx) => (
                 <Cell key={`cell-${idx}`} fill={entry.color} />
               ))}
-            </Pie>
-          </PieChart>
+              </Pie>
+            </PieChart>
+          
         </div>
 
         {/* Legend */}
         <div className="flex flex-col gap-2">
-          {data.map((entry, idx) => (
+          {chartData.map((entry, idx) => (
             <div key={entry.name} className="flex justify-between items-center min-w-[140px]">
               <div className="flex items-center gap-2">
                 <span
