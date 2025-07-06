@@ -19,6 +19,11 @@ interface SidebarProps {
     onFeedbackSelect?: (feedbackId: string) => void;
     onFeedbackClose?: (feedbackId: string) => void;
     openFeedbackIds?: string[];
+    selectedConversationId?: string | null;
+    onConversationSelect?: (conversationId: string) => void;
+    onConversationClose?: (conversationId: string) => void;
+    openConversationIds?: string[];
+    
 }
 
 function SidebarComponent({
@@ -28,10 +33,16 @@ function SidebarComponent({
     onFeedbackSelect,
     onFeedbackClose,
     openFeedbackIds = [],
+    selectedConversationId,
+    onConversationSelect,
+    onConversationClose,
+    openConversationIds = [],
+    
 }: SidebarProps) {
     const [isExpanded, setIsExpanded] = useState(true);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [hasUserClickedFeedback, setHasUserClickedFeedback] = useState(false);
+    const [hasUserClickedConversation, setHasUserClickedConversation] = useState(false);
     const [hoveredTab, setHoveredTab] = useState<string | null>(null);
     const pathname = usePathname();
     const router = useRouter();
@@ -39,14 +50,19 @@ function SidebarComponent({
     // Navigation state
     const isInFeedbackDetail =
         pathname?.startsWith("/feedback/") && selectedFeedbackId;
+    const isInConversationDetail =
+        pathname?.startsWith("/conversation/") && selectedConversationId;
+
     const activeTab =
         pathname === "/" || pathname?.startsWith("/dashboard")
             ? "dashboard"
             : pathname?.startsWith("/conversation")
-                ? "conversation-log"
+                ? isInConversationDetail
+                    ? selectedConversationId || "conversation-log"
+                    : "conversation-log"
                 : pathname?.startsWith("/feedback")
                     ? isInFeedbackDetail
-                        ? selectedFeedbackId
+                        ? selectedFeedbackId || "feedback-review"
                         : "feedback-review"
                     : "";
 
@@ -58,6 +74,15 @@ function SidebarComponent({
         }
     }, [isInFeedbackDetail, selectedFeedbackId]);
 
+    // Open dropdown when entering conversation detail and mark that user has clicked conversation 
+    useEffect(() => {
+        if (isInConversationDetail && selectedConversationId) {
+            setIsDropdownOpen(true);
+            setHasUserClickedConversation(true);
+        }
+    }, [isInConversationDetail, selectedConversationId]);
+
+
     // Also set hasUserClickedFeedback to true when we have open feedback IDs
     // This handles the case when user navigates directly to feedback detail pages
     useEffect(() => {
@@ -66,11 +91,24 @@ function SidebarComponent({
         }
     }, [openFeedbackIds, selectedFeedbackId]);
 
+    // Also set hasUserClickedConversation to true when we have open conversation IDs
+    // This handles the case when user navigates directly to conversation detail pages
+    useEffect(() => {
+        if (openConversationIds.length > 0 || selectedConversationId) {
+            setHasUserClickedConversation(true);
+        }
+    }, [openConversationIds, selectedConversationId]);
+
     const handleNavigate = (tabId: string) => {
         if (tabId === "dashboard") {
             router.push("/");
         } else if (tabId === "conversation-log") {
             router.push("/conversation");
+            // Keep dropdown open when clicking Conversation Log tab
+            if (hasUserClickedConversation) {
+                setIsDropdownOpen(true);
+            }
+            setHasUserClickedConversation(true);
         } else if (tabId === "feedback-review") {
             router.push("/feedback");
 
@@ -79,11 +117,20 @@ function SidebarComponent({
                 setIsDropdownOpen(true);
             }
         } else {
-            // Navigating to specific feedback ID
-            setHasUserClickedFeedback(true);
-            setIsDropdownOpen(true);
-            onFeedbackSelect?.(tabId);
-            router.push(`/feedback/${tabId}`);
+            // Check if this is a conversation ID or feedback ID
+            if (openConversationIds.includes(tabId) || selectedConversationId === tabId) {
+                // Navigating to specific conversation ID
+                setHasUserClickedConversation(true);
+                setIsDropdownOpen(true);
+                onConversationSelect?.(tabId);
+                router.push(`/conversation/${tabId}`);
+            } else {
+                // Navigating to specific feedback ID
+                setHasUserClickedFeedback(true);
+                setIsDropdownOpen(true);
+                onFeedbackSelect?.(tabId);
+                router.push(`/feedback/${tabId}`);
+            }
         }
     };
 
@@ -101,6 +148,10 @@ function SidebarComponent({
         if (id === "feedback-review") {
             // Special handling for feedback review tab
             return pathname === "/feedback" && !isInFeedbackDetail;
+        }
+        if (id === "conversation-log") {
+            // Special handling for conversation log tab
+            return pathname === "/conversation" && !isInConversationDetail;
         }
         return id === activeTab;
     };
@@ -213,6 +264,111 @@ function SidebarComponent({
             );
         }
 
+        if (tab.id === "conversation-log") {
+            // Only show arrow if user has clicked on a conversation detail
+            const showArrow =
+                hasUserClickedConversation &&
+                (openConversationIds.length > 0 || selectedConversationId);
+
+            return (
+                <div key={tab.id}>
+                    <div className="flex items-center justify-between z-50"></div>
+                    <button
+                        onClick={() => handleNavigate(tab.id)}
+                        className={`group w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm transition-colors cursor-pointer hover:bg-gray-100 ${getIsActive(tab.id)
+                            ? "bg-white text-black font-bold hover:bg-white"
+                            : isInConversationDetail
+                                ? "text-black font-bold" // Only font-bold when in detail page
+                                : "text-black hover:bg-gray-100 font-medium"
+                            }`}
+                    >
+                        <span className="flex items-center gap-3">
+                            <Icon className="h-4 w-4" />
+                            {tab.label}
+                        </span>
+
+                        {/* Arrow icon inside button */}
+                        {showArrow && (
+                            <span
+                                className="p-1 rounded hover:bg-gray-200  "
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsDropdownOpen(!isDropdownOpen);
+                                }}
+                            >
+                                <motion.div
+                                    animate={{
+                                        rotate: isDropdownOpen ? 0 : -90,
+                                    }}
+                                    transition={{ duration: 0.2 }}
+                                >
+                                    <FaChevronDown className="h-3 w-3 text-[#666F8D]" />
+                                </motion.div>
+                            </span>
+                        )}
+                    </button>
+
+                    <AnimatePresence>
+                        {isDropdownOpen &&
+                            (selectedConversationId ||
+                                openConversationIds.length > 0) && (
+                                <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: "auto", opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    transition={{ duration: 0.2 }}
+                                    className="ml-7 mt-1 space-y-1"
+                                >
+                                    {[
+                                        ...new Set(
+                                            [
+                                                ...openConversationIds,
+                                                selectedConversationId,
+                                            ].filter(Boolean)
+                                        ),
+                                    ].map((id) => (
+                                        <div
+                                            key={id}
+                                            className="group relative w-full"
+                                        >
+                                            <button
+                                                onClick={() =>
+                                                    handleNavigate(id!)
+                                                }
+                                                className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded text-sm  transition-colors cursor-pointer
+                                                    ${selectedConversationId ===
+                                                        id
+                                                        ? "text-[#292D32] bg-white font-bold"
+                                                        : "text-black hover:bg-gray-100 font-medium"
+                                                    }`}
+                                            >
+                                                <span className="truncate">
+                                                    {id}
+                                                </span>
+
+                                                {/* Close icon inside button */}
+                                                <span
+                                                    className="p-1 bg-gray-100 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        onConversationClose?.(id!);
+                                                    }}
+                                                >
+                                                    <FaTimes
+                                                        className="h-3 w-3 text-gray-500"
+                                                        title="Close"
+                                                    />
+                                                </span>
+                                            </button>
+                                        </div>
+                                    ))}
+                                </motion.div>
+                            )}
+                    </AnimatePresence>
+                </div>
+            );
+        }
+
         return (
             <button
                 key={tab.id}
@@ -236,7 +392,7 @@ function SidebarComponent({
                     animate={{ width: isExpanded ? 280 : 64 }}
                     transition={{ type: "spring", stiffness: 260, damping: 30 }}
                     className="bg-[#F7F8FA] flex flex-col h-full"
-                    style={{ minWidth: 0 }}
+                    
                 >
                     <div className="">
                         {isExpanded ? (
@@ -254,6 +410,7 @@ function SidebarComponent({
                                         </div>
                                     </div>
                                     <button
+                                        title="Toggle Sidebar"
                                         className="hidden md:block p-1 rounded-md hover:bg-gray-200 cursor-pointer"
                                         onClick={() => setIsExpanded(!isExpanded)}
                                     >
@@ -268,6 +425,7 @@ function SidebarComponent({
                         ) : (
                             <div className="w-full flex flex-col justify-center px-2 space-y-1 relative">
                                 <button
+                                    title="Toggle Sidebar"
                                     className="w-full flex items-center justify-center p-1 rounded-lg text-sm transition-colors cursor-pointer my-5 hover:bg-gray-200"
                                     onClick={() => setIsExpanded(!isExpanded)}
                                 >

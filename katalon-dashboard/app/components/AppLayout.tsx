@@ -1,14 +1,16 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
+import { ConversationProvider } from "./ConversationContext";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [openFeedbackIds, setOpenFeedbackIds] = useState<string[]>([]);
     const [selectedFeedbackId, setSelectedFeedbackId] = useState<string | null>(null);
+    const [openConversationIds, setOpenConversationIds] = useState<string[]>([]);
+    const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
     const pathname = usePathname();
     const router = useRouter();
 
@@ -34,6 +36,27 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             // On other pages, clear selected feedback
             setSelectedFeedbackId(null);
         }
+
+        // Check if we're on a conversation detail page
+        const conversationDetailMatch = pathname?.match(/^\/conversation\/(.+)$/);
+        if (conversationDetailMatch) {
+            const conversationId = conversationDetailMatch[1];
+            setSelectedConversationId(conversationId);
+
+            // Add to open conversation IDs if not already there
+            setOpenConversationIds(prev => {
+                if (!prev.includes(conversationId)) {
+                    return [...prev, conversationId];
+                }
+                return prev;
+            });
+        } else if (pathname === "/conversation") {
+            // On conversation log page, clear selected conversation to avoid highlighting detail items
+            setSelectedConversationId(null);
+        } else {
+            // On other pages, clear selected conversation
+            setSelectedConversationId(null);
+        }
     }, [pathname]); // Removed openFeedbackIds from dependencies
 
     const handleFeedbackSelect = (id: string) => {
@@ -55,6 +78,24 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const handleConversationSelect = (id: string) => {
+        if (!openConversationIds.includes(id)) {
+            setOpenConversationIds((prev) => [...prev, id]);
+        }
+        setSelectedConversationId(id);
+    };
+
+    const handleConversationClose = (id: string) => {
+        setOpenConversationIds((prev) => prev.filter((cid) => cid !== id));
+        if (selectedConversationId === id) {
+            setSelectedConversationId(null);
+            // If we're currently on the conversation detail page that's being closed,
+            // redirect to the conversation log page
+            if (pathname === `/conversation/${id}`) {
+                router.push('/conversation');
+            }
+        }
+    };
     return (
         <div className="flex h-screen bg-white">
             <Sidebar
@@ -64,10 +105,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 onFeedbackSelect={handleFeedbackSelect}
                 onFeedbackClose={handleFeedbackClose}
                 openFeedbackIds={openFeedbackIds}
+                selectedConversationId={selectedConversationId}
+                onConversationSelect={handleConversationSelect}
+                onConversationClose={handleConversationClose}
+                openConversationIds={openConversationIds}
             />
             <main className="flex-1 flex flex-col overflow-hidden">
                 <Header onOpenSidebar={() => setMobileOpen(true)} />
-                <div className="flex-1 overflow-auto">{children}</div>
+                <div className="flex-1 overflow-auto">
+                    <ConversationProvider onConversationSelect={handleConversationSelect}>
+                        {children}
+                    </ConversationProvider>
+                </div>
             </main>
         </div>
     );

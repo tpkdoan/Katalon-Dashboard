@@ -267,6 +267,7 @@ export function FeedbackReview({ onFeedbackSelect }: { onFeedbackSelect: (id: st
                                         Type
                                     </label>
                                     <select
+                                        title="Type"
                                         value={typeFilter}
                                         onChange={(e) => setTypeFilter(e.target.value)}
                                         className="w-full px-3 py-2 rounded border focus:outline-none cursor-pointer"
@@ -283,6 +284,7 @@ export function FeedbackReview({ onFeedbackSelect }: { onFeedbackSelect: (id: st
                                         Model
                                     </label>
                                     <select
+                                        title="Model"
                                         value={modelFilter}
                                         onChange={(e) => setModelFilter(e.target.value)}
                                         className="w-full px-3 py-2 rounded border focus:outline-none cursor-pointer"
@@ -303,6 +305,7 @@ export function FeedbackReview({ onFeedbackSelect }: { onFeedbackSelect: (id: st
                                             Start Date
                                         </label>
                                         <input
+                                            title="Start Date"
                                             type="date"
                                             value={startDate}
                                             onChange={(e) => setStartDate(e.target.value)}
@@ -314,6 +317,7 @@ export function FeedbackReview({ onFeedbackSelect }: { onFeedbackSelect: (id: st
                                             End Date
                                         </label>
                                         <input
+                                            title="End Date"
                                             type="date"
                                             value={endDate}
                                             onChange={(e) => setEndDate(e.target.value)}
