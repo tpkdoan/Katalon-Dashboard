@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { FaSearch, FaSort, FaChevronDown, FaTimes } from "react-icons/fa";
+import { FaSearch, FaChevronDown } from "react-icons/fa";
 
 interface ConversationLogItem {
     conversationId: string;
@@ -16,8 +16,8 @@ export function ConversationLog({ onConversationSelect }: { onConversationSelect
 
     // Filters
     const [searchTerm, setSearchTerm] = useState("");
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
+    const [startDate] = useState("");
+    const [endDate] = useState("");
 
     // Sorting
     const [sortBy, setSortBy] = useState<"latest" | "oldest">("latest");
@@ -67,8 +67,6 @@ export function ConversationLog({ onConversationSelect }: { onConversationSelect
         loadData();
     }, []);
 
-    const uniqueModels = Array.from(new Set(conversationLog.map((f) => f.conversationId)));
-
     const filtered = conversationLog.filter((item) => {
         const matchesSearch =
             item.conversationId.toLowerCase().includes(searchTerm.toLowerCase());
@@ -84,7 +82,7 @@ export function ConversationLog({ onConversationSelect }: { onConversationSelect
     const sortedData = [...filtered].sort((a, b) => {
         const dateA = new Date(a.createdAt).getTime();
         const dateB = new Date(b.createdAt).getTime();
-        
+
         if (sortBy === "latest") {
             return dateB - dateA; // Newest first
         } else {
@@ -97,7 +95,7 @@ export function ConversationLog({ onConversationSelect }: { onConversationSelect
         setCurrentPage(1);
     }, [searchTerm, startDate, endDate, sortBy]);
 
-    
+
 
     // Pagination logic
     const totalPages = Math.ceil(sortedData.length / itemsPerPage);
@@ -167,7 +165,7 @@ export function ConversationLog({ onConversationSelect }: { onConversationSelect
                         style={{ fontWeight: 700 }}
                     >
                         {sortBy === "latest" ? "Newest" : "Oldest"}
-                        <FaChevronDown className={`h-3 w-3 transition-transform ${isSortOpen ? 'rotate-180' : ''}`}  />
+                        <FaChevronDown className={`h-3 w-3 transition-transform ${isSortOpen ? 'rotate-180' : ''}`} />
                     </button>
                     {isSortOpen && (
                         <div className="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-200 z-10">

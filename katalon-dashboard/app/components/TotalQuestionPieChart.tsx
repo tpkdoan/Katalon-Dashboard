@@ -1,6 +1,6 @@
 "use client";
-import { FaFilter, FaChevronDown } from 'react-icons/fa';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { FaChevronDown } from 'react-icons/fa';
+import { PieChart, Pie, Cell } from 'recharts';
 import { useState } from 'react';
 const dataMonth = [
   { name: 'Good', value: 4030890, color: '#222' },
@@ -20,7 +20,7 @@ export function TotalQuestionPieChart() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filter, setFilter] = useState("This week");
   const chartData = filter === "This week" ? dataWeek : dataMonth;
-  const total = chartData.reduce((sum, d) => sum + d.value, 0);
+  // const total = chartData.reduce((sum, d) => sum + d.value, 0);
 
 
   return (
@@ -82,7 +82,7 @@ export function TotalQuestionPieChart() {
 
         {/* Legend */}
         <div className="flex flex-col gap-2">
-          {chartData.map((entry, idx) => (
+          {chartData.map((entry) => (
             <div key={entry.name} className="flex justify-between items-center min-w-[140px]">
               <div className="flex items-center gap-2">
                 <span

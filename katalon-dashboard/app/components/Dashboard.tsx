@@ -1,4 +1,3 @@
-import { Charts } from "./Charts";
 import { TotalQuestionPieChart } from "./TotalQuestionPieChart";
 import { TopSelectedModelBarChart } from "./TopSelectedModelBarchart";
 import { SessionCard } from "./SessionCard";
