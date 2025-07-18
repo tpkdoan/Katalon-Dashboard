@@ -45,22 +45,23 @@ export function ConversationLog({ onConversationSelect }: { onConversationSelect
 
     useEffect(() => {
         const loadData = async () => {
-            await new Promise((res) => setTimeout(res, 600)); // Simulate loading
+            setIsLoading(true);
+            try {
+                const conversations = await fetch("/api/conversations");
+                if (!conversations.ok) throw new Error("Failed to fetch conversations");
+                const conversationsData = await conversations.json();
+                
+                const conversationItems = (conversationsData.Items || []).map((fb: any) => {
+                    return {
+                        conversationId: fb.id?.S,
+                        createdAt: fb.timestamp?.S,
+                    };
+                });
 
-            const mock: ConversationLogItem[] = [
-                { conversationId: "987XYZOOJJ", createdAt: "2025-05-27T10:30:00Z" },
-                { conversationId: "456ACBOAJA", createdAt: "2025-05-25T10:30:00Z" },
-                { conversationId: "012ACBOAJA", createdAt: "2025-05-20T10:30:00Z" },
-                { conversationId: "892456ACBO", createdAt: "2025-05-28T10:30:00Z" },
-                { conversationId: "CL-009", createdAt: "2025-05-22T10:30:00Z" },
-                { conversationId: "CL-010", createdAt: "2025-05-21T10:30:00Z" },
-                { conversationId: "CL-011", createdAt: "2025-05-23T10:30:00Z" },
-                { conversationId: "CL-012", createdAt: "2025-05-24T10:30:00Z" },
-                { conversationId: "CL-013", createdAt: "2025-05-26T10:30:00Z" },
-                { conversationId: "CL-014", createdAt: "2025-05-29T10:30:00Z" }
-            ];
-
-            setConversationLog(mock);
+                setConversationLog(conversationItems);
+            } catch (error) {
+                console.error(error);
+            }
             setIsLoading(false);
         };
 

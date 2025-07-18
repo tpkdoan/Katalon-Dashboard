@@ -27,18 +27,19 @@ export function FeedbackDetails({ feedbackId }: FeedbackDetailsProps) {
         const loadFeedbackDetails = async () => {
             setIsLoading(true);
             // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 800));
+            const feedbackRes = await fetch(`/api/feedbacks/${feedbackId}`);
+            const feedbackData = await feedbackRes.json();
+            const messageRes = await fetch(`/api/messages/${feedbackData.messageId}`);
+            const messageData = await messageRes.json();
 
             const mockDetails: FeedbackDetails = {
                 id: feedbackId,
-                conversationId: "987XYZOOJJ",
-                model: "Claude 3",
-                userQuestion:
-                    "Every time I run my test suite in Katalon Studio, it crashes at the same step with an 'Element not found' error, even though the element is clearly visible in the DOM. I've tried using wait commands but it still fails.",
-                aiResponse:
-                    "Thank you for your question. The 'Element not found' error is a common issue in many test automation tools, including Katalon Studio. This error typically occurs when the testing framework cannot locate the target element on the web page during execution. You should make sure the element exists, is visible, and is accessible in the DOM at the time of execution. One common workaround is to use wait commands like WebUI.waitForElementVisible() or WebUI.delay() to ensure that the page has fully loaded before interacting with elements. You might also want to consider checking your object repository to confirm that the element properties are correctly defined. In general, ensuring synchronization between the test script and the application under test is very important. Try using different types of waits or revalidating your locators. Hope this helps!.",
-                type: "bad",
-                comment: "It gave me just one short sentence with no link, no image, no steps. I expected a more helpful answer."
+                conversationId: messageData.conversationId,
+                model: messageData.model,
+                userQuestion: messageData.content,
+                aiResponse: feedbackData.comment,
+                type: feedbackData.type,
+                comment: feedbackData.comment
             };
 
             setFeedback(mockDetails);

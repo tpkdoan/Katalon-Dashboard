@@ -1,0 +1,14 @@
+services:
+  katalon-dashboard:
+    build:
+      context: ./katalon-dashboard
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./katalon-dashboard:/app
+      - ./katalon-dashboard/node_modules:/app/node_modules
+    environment:
+      - DYNAMO_ENDPOINT=http://localhost:8003
+      - AWS_REGION=us-east-1
+      - NODE_ENV=development
