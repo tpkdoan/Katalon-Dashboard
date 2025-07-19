@@ -5,6 +5,7 @@ import { FaSearch, FaChevronDown, FaFilter } from "react-icons/fa";
 
 interface ConversationLogItem {
     conversationId: string;
+    conversationTitle: string;
     createdAt: string;
 }
 
@@ -48,16 +49,16 @@ export function ConversationLog({ onConversationSelect }: { onConversationSelect
             await new Promise((res) => setTimeout(res, 600)); // Simulate loading
 
             const mock: ConversationLogItem[] = [
-                { conversationId: "987XYZOOJJ", createdAt: "2025-05-27T10:30:00Z" },
-                { conversationId: "456ACBOAJA", createdAt: "2025-05-25T10:30:00Z" },
-                { conversationId: "012ACBOAJA", createdAt: "2025-05-20T10:30:00Z" },
-                { conversationId: "892456ACBO", createdAt: "2025-05-28T10:30:00Z" },
-                { conversationId: "CL-009", createdAt: "2025-05-22T10:30:00Z" },
-                { conversationId: "CL-010", createdAt: "2025-05-21T10:30:00Z" },
-                { conversationId: "CL-011", createdAt: "2025-05-23T10:30:00Z" },
-                { conversationId: "CL-012", createdAt: "2025-05-24T10:30:00Z" },
-                { conversationId: "CL-013", createdAt: "2025-05-26T10:30:00Z" },
-                { conversationId: "CL-014", createdAt: "2025-05-29T10:30:00Z" }
+                { conversationId: "987XYZOOJJ", conversationTitle: "Conversation 1", createdAt: "2025-05-27T10:30:00Z" },
+                { conversationId: "456ACBOAJA", conversationTitle: "Conversation 2", createdAt: "2025-05-25T10:30:00Z" },
+                { conversationId: "012ACBOAJA", conversationTitle: "Conversation 3", createdAt: "2025-05-20T10:30:00Z" },
+                { conversationId: "892456ACBO", conversationTitle: "Conversation 4", createdAt: "2025-05-28T10:30:00Z" },
+                { conversationId: "CL-009", conversationTitle: "Conversation 5", createdAt: "2025-05-22T10:30:00Z" },
+                { conversationId: "CL-010", conversationTitle: "Conversation 6", createdAt: "2025-05-21T10:30:00Z" },
+                { conversationId: "CL-011", conversationTitle: "Conversation 7", createdAt: "2025-05-23T10:30:00Z" },
+                { conversationId: "CL-012", conversationTitle: "Conversation 8", createdAt: "2025-05-24T10:30:00Z" },
+                { conversationId: "CL-013", conversationTitle: "Conversation 9", createdAt: "2025-05-26T10:30:00Z" },
+                { conversationId: "CL-014", conversationTitle: "Conversation 10", createdAt: "2025-05-29T10:30:00Z" }
             ];
 
             setConversationLog(mock);
@@ -261,6 +262,7 @@ export function ConversationLog({ onConversationSelect }: { onConversationSelect
                     <thead className="bg-gray-50 text-gray-500 uppercase border-b border-gray-100">
                         <tr>
                             <th className="px-6 py-3 font-medium">Conversation ID</th>
+                            <th className="px-6 py-3 font-medium">Conversation Title</th>
                             <th className="px-6 py-3 font-medium">Date</th>
                         </tr>
                     </thead>
@@ -272,6 +274,7 @@ export function ConversationLog({ onConversationSelect }: { onConversationSelect
                                 onClick={() => onConversationSelect(item.conversationId)}
                             >
                                 <td className="px-6 py-4 font-semibold text-[#363636]">{item.conversationId}</td>
+                                <td className="px-6 py-4 text-gray-600">{item.conversationTitle}</td>
                                 <td className="px-6 py-4">
                                     {new Date(item.createdAt).toLocaleDateString()}
                                 </td>
