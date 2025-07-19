@@ -6,7 +6,7 @@ import { FaFilter, FaChevronDown } from "react-icons/fa";
 export interface DashboardFilterState {
     startDate: string;
     endDate: string;
-    timeRange: "all" | "today" | "week" | "month" | "year";
+    timeRange: "hour" | "today" | "week" | "month" | "year";
 }
 
 interface DashboardFilterProps {
@@ -26,7 +26,7 @@ export function DashboardFilter({ onFilterChange }: DashboardFilterProps) {
     // Filters
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
-    const [timeRange, setTimeRange] = useState<"all" | "today" | "week" | "month" | "year">("week");
+    const [timeRange, setTimeRange] = useState<"hour" | "today" | "week" | "month" | "year">("week");
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -55,7 +55,7 @@ export function DashboardFilter({ onFilterChange }: DashboardFilterProps) {
     }, [startDate, endDate, timeRange]);
 
     // Handle time range changes
-    const handleTimeRangeChange = (range: "all" | "today" | "week" | "month" | "year") => {
+    const handleTimeRangeChange = (range: "hour" | "today" | "week" | "month" | "year") => {
         setTimeRange(range);
         
         // Auto-set date range based on selection
@@ -64,6 +64,11 @@ export function DashboardFilter({ onFilterChange }: DashboardFilterProps) {
         let end = "";
 
         switch (range) {
+            case "hour":
+                const twelveHoursAgo = new Date(now.getTime() - 12 * 60 * 60 * 1000);
+                start = twelveHoursAgo.toISOString().split('T')[0];
+                end = now.toISOString().split('T')[0];
+                break;
             case "today":
                 start = now.toISOString().split('T')[0];
                 end = now.toISOString().split('T')[0];
@@ -83,38 +88,39 @@ export function DashboardFilter({ onFilterChange }: DashboardFilterProps) {
                 start = yearAgo.toISOString().split('T')[0];
                 end = now.toISOString().split('T')[0];
                 break;
-            case "all":
-            default:
-                start = "";
-                end = "";
-                break;
         }
 
         setStartDate(start);
         setEndDate(end);
+        
+        // Auto-close dropdown after selection
+        setIsFilterOpen(false);
     };
 
     const getActiveFiltersCount = () => {
-        let count = 0;
-        if (timeRange !== "all") count++;
-        if (startDate && timeRange === "all") count++;
-        if (endDate && timeRange === "all") count++;
-        return count;
+        // Check if a non-default filter is selected
+        if (timeRange && timeRange !== "week") {
+            return 1;
+        }
+        return 0;
     };
 
     const clearAllFilters = () => {
         setTimeRange("week");
         setStartDate("");
         setEndDate("");
+        
+        // Auto-close dropdown after clearing
+        setIsFilterOpen(false);
     };
 
     const getTimeRangeDisplayText = () => {
         switch (timeRange) {
+            case "hour": return "Past 12 hours";
             case "today": return "Today";
             case "week": return "This week";
             case "month": return "This month";
             case "year": return "This year";
-            case "all": return "All time";
             default: return "This week";
         }
     };
@@ -128,11 +134,6 @@ export function DashboardFilter({ onFilterChange }: DashboardFilterProps) {
                 >
                     <FaFilter className="h-4 w-4" />
                     <span>{getTimeRangeDisplayText()}</span>
-                    {getActiveFiltersCount() > 0 && (
-                        <span className="bg-[#43509B] text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
-                            {getActiveFiltersCount()}
-                        </span>
-                    )}
                     <FaChevronDown className={`h-3 w-3 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} />
                 </button>
 
@@ -147,46 +148,16 @@ export function DashboardFilter({ onFilterChange }: DashboardFilterProps) {
                                 <select
                                     title="Time Range"
                                     value={timeRange}
-                                    onChange={(e) => handleTimeRangeChange(e.target.value as "all" | "today" | "week" | "month" | "year")}
+                                    onChange={(e) => handleTimeRangeChange(e.target.value as "hour" | "today" | "week" | "month" | "year")}
                                     className="w-full px-3 py-2 rounded border focus:outline-none cursor-pointer"
                                 >
+                                    <option value="hour">Past 12 hours</option>
                                     <option value="today">Today</option>
                                     <option value="week">This week</option>
                                     <option value="month">This month</option>
                                     <option value="year">This year</option>
-                                    <option value="all">All time</option>
                                 </select>
                             </div>
-
-                            {/* Custom Date Range (only show when "all" is selected) */}
-                            {timeRange === "all" && (
-                                <div className="grid grid-cols-2 gap-2">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Start Date
-                                        </label>
-                                        <input
-                                            title="Start Date"
-                                            type="date"
-                                            value={startDate}
-                                            onChange={(e) => setStartDate(e.target.value)}
-                                            className="w-full px-3 py-2 rounded border focus:outline-none cursor-pointer"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            End Date
-                                        </label>
-                                        <input
-                                            title="End Date"
-                                            type="date"
-                                            value={endDate}
-                                            onChange={(e) => setEndDate(e.target.value)}
-                                            className="w-full px-3 py-2 rounded border focus:outline-none cursor-pointer"
-                                        />
-                                    </div>
-                                </div>
-                            )}
 
                             {/* Clear all filters and Done button */}
                             <div className="grid grid-cols-2 gap-2">
