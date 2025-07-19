@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { FaSearch, FaChevronDown } from "react-icons/fa";
+import { FaSearch, FaChevronDown, FaFilter } from "react-icons/fa";
 
 interface ConversationLogItem {
     conversationId: string;
@@ -11,13 +11,13 @@ interface ConversationLogItem {
 export function ConversationLog({ onConversationSelect }: { onConversationSelect: (id: string) => void }) {
     const [conversationLog, setConversationLog] = useState<ConversationLogItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [isSortOpen, setIsSortOpen] = useState(false);
-    const sortRef = useRef<HTMLDivElement>(null);
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const filterRef = useRef<HTMLDivElement>(null);
 
     // Filters
     const [searchTerm, setSearchTerm] = useState("");
-    const [startDate] = useState("");
-    const [endDate] = useState("");
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
 
     // Sorting
     const [sortBy, setSortBy] = useState<"latest" | "oldest">("latest");
@@ -29,19 +29,19 @@ export function ConversationLog({ onConversationSelect }: { onConversationSelect
     // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (sortRef.current && !sortRef.current.contains(event.target as Node)) {
-                setIsSortOpen(false);
+            if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+                setIsFilterOpen(false);
             }
         };
 
-        if (isSortOpen) {
+        if (isFilterOpen) {
             document.addEventListener('mousedown', handleClickOutside);
         }
 
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [isSortOpen]);
+    }, [isFilterOpen]);
 
     useEffect(() => {
         const loadData = async () => {
@@ -95,7 +95,18 @@ export function ConversationLog({ onConversationSelect }: { onConversationSelect
         setCurrentPage(1);
     }, [searchTerm, startDate, endDate, sortBy]);
 
+    const getActiveFiltersCount = () => {
+        let count = 0;
+        if (startDate) count++;
+        if (endDate) count++;
+        return count;
+    };
 
+    const clearAllFilters = () => {
+        setStartDate("");
+        setEndDate("");
+        setCurrentPage(1); // Reset to first page when clearing filters
+    };
 
     // Pagination logic
     const totalPages = Math.ceil(sortedData.length / itemsPerPage);
@@ -121,7 +132,7 @@ export function ConversationLog({ onConversationSelect }: { onConversationSelect
 
     const handleSortChange = (sortType: "latest" | "oldest") => {
         setSortBy(sortType);
-        setIsSortOpen(false);
+        setIsFilterOpen(false);
     };
 
     // Loading state
@@ -142,45 +153,103 @@ export function ConversationLog({ onConversationSelect }: { onConversationSelect
 
     return (
         <div className="p-6 space-y-6">
-            {/* Search and Sort */}
+            {/* Search and Filters */}
             <div className="flex items-center gap-3">
-                <div className="flex-1 relative w-[300px]">
+                <div className="flex-1 relative">
                     <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                     <input
                         type="text"
-                        placeholder="Search by ID or response..."
+                        placeholder="Search by conversation ID..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full pl-10 pr-3 py-2 rounded-lg bg-[#F9F9FA]"
                     />
                 </div>
 
-                {/* Sort Dropdown - styled as text */}
-                <div className="relative select-none" ref={sortRef}>
-                    <span className="text-gray-500 mr-2">Sorted by :</span>
+                <div className="relative" ref={filterRef}>
                     <button
-                        title="Sort by"
-                        onClick={() => setIsSortOpen(!isSortOpen)}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#F9F9FA] font-semibold text-[#23272F] focus:outline-none hover:bg-gray-50 transition-colors cursor-pointer"
-                        style={{ fontWeight: 700 }}
+                        onClick={() => setIsFilterOpen(!isFilterOpen)}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg bg-[#F9F9FA] hover:bg-gray-50 transition-colors cursor-pointer ${getActiveFiltersCount() > 0 ? '' : ''
+                            }`}
                     >
-                        {sortBy === "latest" ? "Newest" : "Oldest"}
-                        <FaChevronDown className={`h-3 w-3 transition-transform ${isSortOpen ? 'rotate-180' : ''}`} />
+                        <FaFilter className="h-4 w-4" />
+                        <span>Filters</span>
+                        {getActiveFiltersCount() > 0 && (
+                            <span className="bg-[#43509B] text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
+                                {getActiveFiltersCount()}
+                            </span>
+                        )}
+                        <FaChevronDown className={`h-3 w-3 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} />
                     </button>
-                    {isSortOpen && (
-                        <div className="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
-                            <button
-                                onClick={() => handleSortChange("latest")}
-                                className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${sortBy === "latest" ? "font-bold text-[#23272F]" : "text-gray-700"}`}
-                            >
-                                Newest
-                            </button>
-                            <button
-                                onClick={() => handleSortChange("oldest")}
-                                className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${sortBy === "oldest" ? "font-bold text-[#23272F]" : "text-gray-700"}`}
-                            >
-                                Oldest
-                            </button>
+
+                    {isFilterOpen && (
+                        <div className="absolute right-0 top-full mt-1 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-4">
+                            <div className="space-y-4">
+                                {/* Sort by Date */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Sort by Date
+                                    </label>
+                                    <select
+                                        title="Sort"
+                                        value={sortBy}
+                                        onChange={(e) => handleSortChange(e.target.value as "latest" | "oldest")}
+                                        className="w-full px-3 py-2 rounded border focus:outline-none cursor-pointer"
+                                    >
+                                        <option value="latest">Latest First</option>
+                                        <option value="oldest">Oldest First</option>
+                                    </select>
+                                </div>
+
+                                {/* Filter by Date */}
+                                <div className="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Start Date
+                                        </label>
+                                        <input
+                                            title="Start Date"
+                                            type="date"
+                                            value={startDate}
+                                            onChange={(e) => setStartDate(e.target.value)}
+                                            className="w-full px-3 py-2 rounded border focus:outline-none cursor-pointer"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            End Date
+                                        </label>
+                                        <input
+                                            title="End Date"
+                                            type="date"
+                                            value={endDate}
+                                            onChange={(e) => setEndDate(e.target.value)}
+                                            className="w-full px-3 py-2 rounded border focus:outline-none cursor-pointer"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Clear all filters and Done button */}
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button
+                                        onClick={clearAllFilters}
+                                        disabled={getActiveFiltersCount() === 0}
+                                        className={`text-sm cursor-pointer rounded-lg px-2 py-1 ${getActiveFiltersCount() > 0
+                                            ? 'bg-gray-300 text-black hover:bg-gray-400'
+                                            : 'bg-gray-200 text-gray-400 cursor-not-allowed w-full'
+                                            }`}
+                                    >
+                                        Clear all
+                                    </button>
+                                    <button
+                                        onClick={() => setIsFilterOpen(false)}
+                                        className="text-sm cursor-pointer bg-[#43509B] text-white hover:bg-[#3A4588] rounded-lg px-3 py-1 w-full"
+                                    >
+                                        Done
+                                    </button>
+                                </div>
+
+                            </div>
                         </div>
                     )}
                 </div>
@@ -196,15 +265,15 @@ export function ConversationLog({ onConversationSelect }: { onConversationSelect
                         </tr>
                     </thead>
                     <tbody className="text-gray-800">
-                        {currentItems.map((fb) => (
+                        {currentItems.map((item) => (
                             <tr
-                                key={fb.conversationId + fb.createdAt}
+                                key={item.conversationId + item.createdAt}
                                 className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
-                                onClick={() => onConversationSelect(fb.conversationId)}
+                                onClick={() => onConversationSelect(item.conversationId)}
                             >
-                                <td className="px-6 py-4 font-semibold text-[#363636]">{fb.conversationId}</td>
+                                <td className="px-6 py-4 font-semibold text-[#363636]">{item.conversationId}</td>
                                 <td className="px-6 py-4">
-                                    {new Date(fb.createdAt).toLocaleDateString()}
+                                    {new Date(item.createdAt).toLocaleDateString()}
                                 </td>
                             </tr>
                         ))}
@@ -213,7 +282,7 @@ export function ConversationLog({ onConversationSelect }: { onConversationSelect
 
                 {sortedData.length === 0 && (
                     <div className="text-center p-6 text-gray-500">
-                        No conversations matched your search.
+                        No conversations matched your filters.
                     </div>
                 )}
 
