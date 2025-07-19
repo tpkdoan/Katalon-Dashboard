@@ -1,7 +1,6 @@
 "use client";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
-import { useState } from "react";
-import { FaChevronDown } from "react-icons/fa";
+import { DashboardFilterState } from './DashboardFilter';
 
 const dataMonth = [
   { name: "Week 1", Good: 7560, Bad: 15420, "Not rating": 9000 },
@@ -19,10 +18,17 @@ const COLORS = {
   "Not rating": "#D17BBE",
 };
 
-export function WeeklyAnswerChart() {
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filter, setFilter] = useState("This Month");
-  const chartData = filter === "This Month" ? dataMonth : dataWeek;
+interface WeeklyAnswerChartProps {
+  filters?: DashboardFilterState;
+}
+
+export function WeeklyAnswerChart({ filters }: WeeklyAnswerChartProps) {
+  // Use the global filter to determine which data to show
+  const chartData = filters?.timeRange === "month" ? dataMonth : dataWeek;
+  
+  // Calculate totals for the subtitle
+  const totalGood = chartData.reduce((sum, item) => sum + item.Good, 0);
+  const totalBad = chartData.reduce((sum, item) => sum + item.Bad, 0);
 
   return (
     <div className="w-full">
@@ -31,33 +37,8 @@ export function WeeklyAnswerChart() {
         <div>
           <div className="text-sm font-semibold text-[#222]">Weekly Answer Quality Trend</div>
           <div className="text-base text-[#6B7280] mt-1">
-            7,560 Good & 5,420 Bad in this Month
+            {totalGood.toLocaleString("en-US")} Good & {totalBad.toLocaleString("en-US")} Bad in this {filters?.timeRange === "month" ? "Month" : "Week"}
           </div>
-        </div>
-        <div className="relative inline-block">
-          <button
-            onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#F9F9FA] hover:bg-gray-50 transition-colors cursor-pointer border border-gray-200"
-          >
-            <span>{filter}</span>
-            <FaChevronDown className={`h-3 w-3 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} />
-          </button>
-          {isFilterOpen && (
-            <div className="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
-              <button
-                className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                onClick={() => { setFilter("This Month"); setIsFilterOpen(false); }}
-              >
-                This Month
-              </button>
-              <button
-                className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                onClick={() => { setFilter("This Week"); setIsFilterOpen(false); }}
-              >
-                This Week
-              </button>
-            </div>
-          )}
         </div>
       </div>
       {/* Legend */}

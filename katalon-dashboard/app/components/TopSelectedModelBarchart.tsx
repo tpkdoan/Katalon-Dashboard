@@ -1,8 +1,7 @@
 "use client";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
-import { useState } from "react";
-import { FaChevronDown } from "react-icons/fa";
 import { Cell } from "recharts";
+import { DashboardFilterState } from './DashboardFilter';
 
 const dataWeek = [
   { name: "GPT", value: 18000, color: "#A5A6F6" },
@@ -18,41 +17,19 @@ const dataMonth = [
   { name: "Claude", value: 28000, color: "#7ECFFF" },
 ];
 
-export function TopSelectedModelBarChart() {
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filter, setFilter] = useState("This week");
-  const chartData = filter === "This week" ? dataWeek : dataMonth;
+interface TopSelectedModelBarChartProps {
+  filters?: DashboardFilterState;
+}
+
+export function TopSelectedModelBarChart({ filters }: TopSelectedModelBarChartProps) {
+  // Use the global filter to determine which data to show
+  const chartData = filters?.timeRange === "month" ? dataMonth : dataWeek;
 
   return (
     <div className="flex flex-col w-full h-full">
       {/* Header */}
       <div className="flex justify-between items-start mb-2">
         <div className="text-sm font-semibold">Top Selected Model</div>
-        <div className="relative inline-block">
-          <button
-            onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#F9F9FA] hover:bg-gray-50 transition-colors cursor-pointer shadow-xs"
-          >
-            <span>{filter}</span>
-            <FaChevronDown className={`h-3 w-3 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} />
-          </button>
-          {isFilterOpen && (
-            <div className="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
-              <button
-                className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                onClick={() => { setFilter("This week"); setIsFilterOpen(false); }}
-              >
-                This week
-              </button>
-              <button
-                className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                onClick={() => { setFilter("This month"); setIsFilterOpen(false); }}
-              >
-                This month
-              </button>
-            </div>
-          )}
-        </div>
       </div>
       {/* Chart */}
       <div className="w-full h-56 mt-2">
