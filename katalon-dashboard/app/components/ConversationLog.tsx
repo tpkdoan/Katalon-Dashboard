@@ -162,7 +162,7 @@ export function ConversationLog({ onConversationSelect }: { onConversationSelect
                     <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                     <input
                         type="text"
-                        placeholder="Search by conversation ID..."
+                        placeholder="Search by ID or title..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full pl-10 pr-3 py-2 rounded-lg bg-[#F9F9FA]"

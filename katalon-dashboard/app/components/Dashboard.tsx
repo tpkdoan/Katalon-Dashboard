@@ -23,7 +23,7 @@ function DashboardContent() {
     };
     fetchData();
   }, []);
-  const { filters, setFilters } = useDashboardFilter();
+  const { setFilters } = useDashboardFilter();
 
   const handleFilterChange = useCallback((newFilters: any) => {
     setFilters(newFilters);
