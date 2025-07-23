@@ -1,8 +1,12 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 
 const client = new DynamoDBClient({
-    region: "us-east-1",
-    endpoint: process.env.DYNAMO_ENDPOINT,
+    region: "local",
+    endpoint: process.env.DYNAMO_ENDPOINT || "http://localhost:8003",
+    credentials: {
+        accessKeyId: "local",
+        secretAccessKey: "local",
+    },
 });
 
 export { client };
