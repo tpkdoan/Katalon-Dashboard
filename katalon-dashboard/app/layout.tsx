@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning={true}>
       <body
-        className={`${inter.className} antialiased`}
+        className={`${inter.className} antialiased chakra-ui-light`}
       >
         <AppLayout>
           {children}

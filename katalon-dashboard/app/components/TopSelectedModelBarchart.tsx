@@ -39,27 +39,32 @@ export function TopSelectedModelBarChart({ messages }: { messages: any }) {
       setChartData([
         {
           name: "GPT",
-          value: filtered.filter((item: any) => item.model?.S.includes("GPT"))
+          // value: filtered.filter((item: any) => item.model?.S.includes("GPT"))
+          value: filtered.filter(
+            (item: any) => typeof item.model?.S === 'string' && item.model.S.includes("GPT")
+          )
             .length,
           color: "#A5A6F6",
         },
         {
           name: "Grok",
-          value: filtered.filter((item: any) => item.model?.S.includes("GROK"))
+            value: filtered.filter(
+              (item: any) => typeof item.model?.S === 'string' && item.model.S.includes("GROK")
+            )
             .length,
           color: "#8CF2C6",
         },
         {
           name: "Gemini",
-          value: filtered.filter((item: any) =>
-            item.model?.S.includes("GEMINI")
+          value: filtered.filter(
+            (item: any) => typeof item.model?.S === 'string' && item.model.S.includes("GEMINI")
           ).length,
           color: "#222",
         },
         {
           name: "Claude",
-          value: filtered.filter((item: any) =>
-            item.model?.S.includes("CLAUDE")
+          value: filtered.filter(
+            (item: any) => typeof item.model?.S === 'string' && item.model.S.includes("CLAUDE")
           ).length,
           color: "#7ECFFF",
         },
