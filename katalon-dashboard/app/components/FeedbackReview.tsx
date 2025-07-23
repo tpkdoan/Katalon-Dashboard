@@ -4,7 +4,6 @@ import { FaFilter, FaChevronDown, FaSearch } from "react-icons/fa";
 
 interface FeedbackItem {
     id: string;
-    userId: string;
     model: string;
     type: "good" | "bad";
     createdAt: string;
@@ -47,93 +46,123 @@ export function FeedbackReview({ onFeedbackSelect }: { onFeedbackSelect: (id: st
 
     useEffect(() => {
         const loadData = async () => {
-            await new Promise((res) => setTimeout(res, 600)); // Simulate loading
+            setIsLoading(true);
+            try {
+                const feedbacksRes = await fetch("/api/feedbacks");
+                if (!feedbacksRes.ok) throw new Error("Failed to fetch feedbacks");
+                const feedbacksData = await feedbacksRes.json();
 
-            const mock: FeedbackItem[] = [
-                {
-                    id: "FB-001",
-                    userId: "user123",
-                    model: "Claude",
-                    type: "good",
-                    createdAt: "2024-01-15T10:30:00Z",
-                    response: "Would be great to have dark mode for better UX"
-                },
-                {
-                    id: "FB-002",
-                    userId: "user456",
-                    model: "GPT-4",
-                    type: "bad",
-                    createdAt: "2024-01-14T15:45:00Z",
-                    response: "The assistant is too slow"
-                },
-                {
-                    id: "FB-003",
-                    userId: "user789",
-                    model: "Claude",
-                    type: "good",
-                    createdAt: "2024-01-13T09:20:00Z",
-                    response: "Better error messages needed"
-                },
-                {
-                    id: "FB-004",
-                    userId: "user101",
-                    model: "Gemini",
-                    type: "bad",
-                    createdAt: "2024-01-12T14:15:00Z",
-                    response: "Can't log in with Google"
-                },
-                {
-                    id: "FB-005",
-                    userId: "user202",
-                    model: "Claude",
-                    type: "good",
-                    createdAt: "2024-01-11T11:30:00Z",
-                    response: "Would like to export conversations"
-                },
-                {
-                    id: "FB-006",
-                    userId: "user303",
-                    model: "GPT-4",
-                    type: "good",
-                    createdAt: "2024-01-10T16:20:00Z",
-                    response: "The search functionality works perfectly"
-                },
-                {
-                    id: "FB-007",
-                    userId: "user404",
-                    model: "Gemini",
-                    type: "bad",
-                    createdAt: "2024-01-09T13:45:00Z",
-                    response: "Mobile app crashes frequently"
-                },
-                {
-                    id: "FB-008",
-                    userId: "user505",
-                    model: "Claude",
-                    type: "good",
-                    createdAt: "2024-01-08T08:30:00Z",
-                    response: "Love the new dashboard design"
-                },
-                {
-                    id: "FB-009",
-                    userId: "user606",
-                    model: "GPT-4",
-                    type: "bad",
-                    createdAt: "2024-01-07T12:15:00Z",
-                    response: "Can't upload files larger than 10MB"
-                },
-                {
-                    id: "FB-010",
-                    userId: "user707",
-                    model: "Gemini",
-                    type: "good",
-                    createdAt: "2024-01-06T17:00:00Z",
-                    response: "The notification system is very helpful"
-                }
-            ];
+                const messagesRes = await fetch("/api/messages");
+                if (!messagesRes.ok) throw new Error("Failed to fetch messages");
+                const messagesData = await messagesRes.json();
 
-            setFeedback(mock);
+                const messageMap: { [id: string]: any } = {};
+                (messagesData.Items || []).forEach((msg: any) => {
+                    const id = msg.id?.S || msg.messageId?.S;
+                    if (id) messageMap[id] = msg;
+                });
+
+                const feedbackItems = (feedbacksData.Items || []).map((fb: any) => {
+                    const id = fb.messageId?.S || fb.id?.S;
+                    const msg = id ? messageMap[id] : undefined;
+                    return {
+                        id: id || "",
+                        model: msg?.model?.S || "",
+                        type: fb.type?.S || "good",
+                        createdAt: fb.timestamp?.S || "",
+                        response: fb.comment?.S || "",
+                    };
+                });
+
+                setFeedback(feedbackItems);
+            } catch (error) {
+                console.error(error);
+                setFeedback([]);
+            }
             setIsLoading(false);
+
+            // const mock: FeedbackItem[] = [
+            //     {
+            //         id: "FB-001",
+            //         userId: "user123",
+            //         model: "Claude",
+            //         type: "good",
+            //         createdAt: "2024-01-15T10:30:00Z",
+            //         response: "Would be great to have dark mode for better UX"
+            //     },
+            //     {
+            //         id: "FB-002",
+            //         userId: "user456",
+            //         model: "GPT-4",
+            //         type: "bad",
+            //         createdAt: "2024-01-14T15:45:00Z",
+            //         response: "The assistant is too slow"
+            //     },
+            //     {
+            //         id: "FB-003",
+            //         userId: "user789",
+            //         model: "Claude",
+            //         type: "good",
+            //         createdAt: "2024-01-13T09:20:00Z",
+            //         response: "Better error messages needed"
+            //     },
+            //     {
+            //         id: "FB-004",
+            //         userId: "user101",
+            //         model: "Gemini",
+            //         type: "bad",
+            //         createdAt: "2024-01-12T14:15:00Z",
+            //         response: "Can't log in with Google"
+            //     },
+            //     {
+            //         id: "FB-005",
+            //         userId: "user202",
+            //         model: "Claude",
+            //         type: "good",
+            //         createdAt: "2024-01-11T11:30:00Z",
+            //         response: "Would like to export conversations"
+            //     },
+            //     {
+            //         id: "FB-006",
+            //         userId: "user303",
+            //         model: "GPT-4",
+            //         type: "good",
+            //         createdAt: "2024-01-10T16:20:00Z",
+            //         response: "The search functionality works perfectly"
+            //     },
+            //     {
+            //         id: "FB-007",
+            //         userId: "user404",
+            //         model: "Gemini",
+            //         type: "bad",
+            //         createdAt: "2024-01-09T13:45:00Z",
+            //         response: "Mobile app crashes frequently"
+            //     },
+            //     {
+            //         id: "FB-008",
+            //         userId: "user505",
+            //         model: "Claude",
+            //         type: "good",
+            //         createdAt: "2024-01-08T08:30:00Z",
+            //         response: "Love the new dashboard design"
+            //     },
+            //     {
+            //         id: "FB-009",
+            //         userId: "user606",
+            //         model: "GPT-4",
+            //         type: "bad",
+            //         createdAt: "2024-01-07T12:15:00Z",
+            //         response: "Can't upload files larger than 10MB"
+            //     },
+            //     {
+            //         id: "FB-010",
+            //         userId: "user707",
+            //         model: "Gemini",
+            //         type: "good",
+            //         createdAt: "2024-01-06T17:00:00Z",
+            //         response: "The notification system is very helpful"
+            //     }
+            // ];
         };
 
         loadData();

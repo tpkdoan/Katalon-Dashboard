@@ -1,16 +1,7 @@
 "use client";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
-import { DashboardFilterState } from './DashboardFilter';
-
-const dataMonth = [
-  { name: "Week 1", Good: 7560, Bad: 15420, "Not rating": 9000 },
-  { name: "Week 2", Good: 12000, Bad: 6000, "Not rating": 5000 },
-  { name: "Week 3", Good: 5000, Bad: 10000, "Not rating": 8000 },
-  { name: "Week 4", Good: 15000, Bad: 7000, "Not rating": 11000 },
-];
-const dataWeek = [
-  { name: "Week 4", Good: 15000, Bad: 7000, "Not rating": 11000 },
-];
+import { useEffect, useState } from "react";
+import { getWeekOfMonth, isThisMonth } from "@/lib/utils";
 
 const COLORS = {
   Good: "#174AFF",
@@ -18,17 +9,69 @@ const COLORS = {
   "Not rating": "#D17BBE",
 };
 
-interface WeeklyAnswerChartProps {
-  filters?: DashboardFilterState;
+function groupRatingsByWeek(messages: any[], feedbacks: any[]) {
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+
+  const feedbackMap: { [messageId: string]: string } = {};
+  feedbacks.forEach(fb => {
+    if (fb.messageId?.S && fb.type?.S) {
+      feedbackMap[fb.messageId.S] = fb.type.S;
+    }
+  });
+
+  const weekMap: { [week: number]: { Good: number; Bad: number; "Not rating": number } } = {};
+
+  messages.forEach(msg => {
+    const ts = msg.timestamp?.S;
+    const id = msg.id?.S;
+    const date = new Date(ts);
+    if (date.getMonth() !== currentMonth || date.getFullYear() !== currentYear) return;
+
+    const week = getWeekOfMonth(ts);
+    if (!weekMap[week]) {
+      weekMap[week] = { Good: 0, Bad: 0, "Not rating": 0 };
+    }
+    const rating = id && feedbackMap[id] ? feedbackMap[id] : "Not rating";
+    if (rating === "good") weekMap[week].Good += 1;
+    else if (rating === "bad") weekMap[week].Bad += 1;
+    else weekMap[week]["Not rating"] += 1;
+  });
+
+  return Object.keys(weekMap)
+    .sort((a, b) => Number(a) - Number(b))
+    .map(week => ({
+      name: `Week ${week}`,
+      ...weekMap[Number(week)],
+    }));
 }
 
-export function WeeklyAnswerChart({ filters }: WeeklyAnswerChartProps) {
-  // Use the global filter to determine which data to show
-  const chartData = filters?.timeRange === "month" ? dataMonth : dataWeek;
-  
-  // Calculate totals for the subtitle
-  const totalGood = chartData.reduce((sum, item) => sum + item.Good, 0);
-  const totalBad = chartData.reduce((sum, item) => sum + item.Bad, 0);
+export function WeeklyAnswerChart({
+  messages,
+  feedbacks,
+}: {
+  messages: any;
+  feedbacks: any;
+}) {
+  const [chartData, setChartData] = useState<{ name: string; Good: number; Bad: number; "Not rating": number }[]>([]);
+  const [totalGood, setTotalGood] = useState(0);
+  const [totalBad, setTotalBad] = useState(0);
+
+  useEffect(() => {
+    if (messages.Items && feedbacks.Items) {
+      let filteredMessages = messages.Items.filter((item: any) => item.role?.S === "assistant");
+      filteredMessages = filteredMessages.filter((item: any) =>
+        isThisMonth(item.timestamp?.S)
+      );
+      const filteredFeedbacks = feedbacks.Items.filter((item: any) =>
+        isThisMonth(item.timestamp?.S)
+      );
+      setTotalGood(filteredFeedbacks.filter((item: any) => item.type?.S === "good").length);
+      setTotalBad(filteredFeedbacks.filter((item: any) => item.type?.S === "bad").length);
+      setChartData(groupRatingsByWeek(filteredMessages, filteredFeedbacks));
+    }
+  }, [messages, feedbacks]);
 
   return (
     <div className="w-full">
@@ -37,7 +80,7 @@ export function WeeklyAnswerChart({ filters }: WeeklyAnswerChartProps) {
         <div>
           <div className="text-sm font-semibold text-[#222]">Weekly Answer Quality Trend</div>
           <div className="text-base text-[#6B7280] mt-1">
-            {totalGood.toLocaleString("en-US")} Good & {totalBad.toLocaleString("en-US")} Bad in this {filters?.timeRange === "month" ? "Month" : "Week"}
+            {totalGood} Good & {totalBad} Bad in this Month
           </div>
         </div>
       </div>
@@ -87,3 +130,7 @@ export function WeeklyAnswerChart({ filters }: WeeklyAnswerChartProps) {
     </div>
   );
 }
+
+
+
+
