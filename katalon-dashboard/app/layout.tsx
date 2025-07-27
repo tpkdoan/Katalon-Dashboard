@@ -8,6 +8,7 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: "Katalon Dashboard",
   description: "Katalon Dashboard",
+  icons: "/logo.svg",
 };
 
 export default function RootLayout({

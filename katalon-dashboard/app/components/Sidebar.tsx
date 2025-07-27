@@ -8,6 +8,7 @@ import {
     FaComments,
     FaChevronDown,
     FaTimes,
+    FaTicketAlt,
 } from "react-icons/fa";
 import { TbLayoutSidebar } from "react-icons/tb";
 import Image from "next/image";
@@ -23,7 +24,10 @@ interface SidebarProps {
     onConversationSelect?: (conversationId: string) => void;
     onConversationClose?: (conversationId: string) => void;
     openConversationIds?: string[];
-    
+    selectedTicketId?: string | null;
+    onTicketSelect?: (ticketId: string) => void;
+    onTicketClose?: (ticketId: string) => void;
+    openTicketIds?: string[];
 }
 
 function SidebarComponent({
@@ -37,12 +41,16 @@ function SidebarComponent({
     onConversationSelect,
     onConversationClose,
     openConversationIds = [],
-    
+    selectedTicketId,
+    onTicketSelect,
+    onTicketClose,
+    openTicketIds = [],
 }: SidebarProps) {
     const [isExpanded, setIsExpanded] = useState(true);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [hasUserClickedFeedback, setHasUserClickedFeedback] = useState(false);
     const [hasUserClickedConversation, setHasUserClickedConversation] = useState(false);
+    const [hasUserClickedTicket, setHasUserClickedTicket] = useState(false);
     const [hoveredTab, setHoveredTab] = useState<string | null>(null);
     const pathname = usePathname();
     const router = useRouter();
@@ -52,6 +60,8 @@ function SidebarComponent({
         pathname?.startsWith("/feedback/") && selectedFeedbackId;
     const isInConversationDetail =
         pathname?.startsWith("/conversation/") && selectedConversationId;
+    const isInTicketDetail =
+        pathname?.startsWith("/ticket/") && selectedTicketId;
 
     const activeTab =
         pathname === "/" || pathname?.startsWith("/dashboard")
@@ -64,7 +74,11 @@ function SidebarComponent({
                     ? isInFeedbackDetail
                         ? selectedFeedbackId || "feedback-review"
                         : "feedback-review"
-                    : "";
+                    : pathname?.startsWith("/ticket")
+                        ? isInTicketDetail
+                            ? selectedTicketId || "ticket-management"
+                            : "ticket-management"
+                        : "";
 
     // Open dropdown when entering feedback detail and mark that user has clicked feedback
     useEffect(() => {
@@ -74,13 +88,21 @@ function SidebarComponent({
         }
     }, [isInFeedbackDetail, selectedFeedbackId]);
 
-    // Open dropdown when entering conversation detail and mark that user has clicked conversation 
+    // Open dropdown when entering conversation detail and mark that user has clicked conversation
     useEffect(() => {
         if (isInConversationDetail && selectedConversationId) {
             setIsDropdownOpen(true);
             setHasUserClickedConversation(true);
         }
     }, [isInConversationDetail, selectedConversationId]);
+
+    // Open dropdown when entering ticket detail and mark that user has clicked ticket
+    useEffect(() => {
+        if (isInTicketDetail && selectedTicketId) {
+            setIsDropdownOpen(true);
+            setHasUserClickedTicket(true);
+        }
+    }, [isInTicketDetail, selectedTicketId]);
 
 
     // Also set hasUserClickedFeedback to true when we have open feedback IDs
@@ -116,14 +138,28 @@ function SidebarComponent({
             if (hasUserClickedFeedback) {
                 setIsDropdownOpen(true);
             }
+        } else if (tabId === "ticket-management") {
+            router.push("/ticket");
+
+            // Keep dropdown open when clicking Ticket Management tab
+            if (hasUserClickedTicket) {
+                setIsDropdownOpen(true);
+            }
+            setHasUserClickedTicket(true);
         } else {
-            // Check if this is a conversation ID or feedback ID
+            // Check if this is a conversation ID, feedback ID, or ticket ID
             if (openConversationIds.includes(tabId) || selectedConversationId === tabId) {
                 // Navigating to specific conversation ID
                 setHasUserClickedConversation(true);
                 setIsDropdownOpen(true);
                 onConversationSelect?.(tabId);
                 router.push(`/conversation/${tabId}`);
+            } else if (openTicketIds.includes(tabId) || selectedTicketId === tabId) {
+                // Navigating to specific ticket ID
+                setHasUserClickedTicket(true);
+                setIsDropdownOpen(true);
+                onTicketSelect?.(tabId);
+                router.push(`/ticket/${tabId}`);
             } else {
                 // Navigating to specific feedback ID
                 setHasUserClickedFeedback(true);
@@ -142,6 +178,7 @@ function SidebarComponent({
             icon: FaClipboardList,
         },
         { id: "conversation-log", label: "Conversation Log", icon: FaComments },
+        { id: "ticket-management", label: "Ticket Management", icon: FaTicketAlt },
     ];
 
     const getIsActive = (id: string) => {
@@ -152,6 +189,10 @@ function SidebarComponent({
         if (id === "conversation-log") {
             // Special handling for conversation log tab
             return pathname === "/conversation" && !isInConversationDetail;
+        }
+        if (id === "ticket-management") {
+            // Special handling for ticket management tab
+            return pathname === "/ticket" && !isInTicketDetail;
         }
         return id === activeTab;
     };
@@ -369,6 +410,111 @@ function SidebarComponent({
             );
         }
 
+        if (tab.id === "ticket-management") {
+            // Only show arrow if user has clicked on a ticket detail
+            const showArrow =
+                hasUserClickedTicket &&
+                (openTicketIds.length > 0 || selectedTicketId);
+
+            return (
+                <div key={tab.id}>
+                    <div className="flex items-center justify-between z-50"></div>
+                    <button
+                        onClick={() => handleNavigate(tab.id)}
+                        className={`group w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-sm transition-colors cursor-pointer hover:bg-gray-100 ${getIsActive(tab.id)
+                            ? "bg-white text-black font-bold hover:bg-white"
+                            : isInTicketDetail
+                                ? "text-black font-bold" // Only font-bold when in detail page
+                                : "text-black hover:bg-gray-100 font-medium"
+                            }`}
+                    >
+                        <span className="flex items-center gap-3">
+                            <Icon className="h-4 w-4" />
+                            {tab.label}
+                        </span>
+
+                        {/* Arrow icon inside button */}
+                        {showArrow && (
+                            <span
+                                className="p-1 rounded hover:bg-gray-200  "
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsDropdownOpen(!isDropdownOpen);
+                                }}
+                            >
+                                <motion.div
+                                    animate={{
+                                        rotate: isDropdownOpen ? 0 : -90,
+                                    }}
+                                    transition={{ duration: 0.2 }}
+                                >
+                                    <FaChevronDown className="h-3 w-3 text-[#666F8D]" />
+                                </motion.div>
+                            </span>
+                        )}
+                    </button>
+
+                    <AnimatePresence>
+                        {isDropdownOpen &&
+                            (selectedTicketId ||
+                                openTicketIds.length > 0) && (
+                                <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: "auto", opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    transition={{ duration: 0.2 }}
+                                    className="ml-7 mt-1 space-y-1"
+                                >
+                                    {[
+                                        ...new Set(
+                                            [
+                                                ...openTicketIds,
+                                                selectedTicketId,
+                                            ].filter(Boolean)
+                                        ),
+                                    ].map((id) => (
+                                        <div
+                                            key={id}
+                                            className="group relative w-full"
+                                        >
+                                            <button
+                                                onClick={() =>
+                                                    handleNavigate(id!)
+                                                }
+                                                className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded text-sm  transition-colors cursor-pointer
+                                                    ${selectedTicketId ===
+                                                        id
+                                                        ? "text-[#292D32] bg-white font-bold"
+                                                        : "text-black hover:bg-gray-100 font-medium"
+                                                    }`}
+                                            >
+                                                <span className="truncate">
+                                                    {id}
+                                                </span>
+
+                                                {/* Close icon inside button */}
+                                                <span
+                                                    className="p-1 bg-gray-100 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        onTicketClose?.(id!);
+                                                    }}
+                                                >
+                                                    <FaTimes
+                                                        className="h-3 w-3 text-gray-500"
+                                                        title="Close"
+                                                    />
+                                                </span>
+                                            </button>
+                                        </div>
+                                    ))}
+                                </motion.div>
+                            )}
+                    </AnimatePresence>
+                </div>
+            );
+        }
+
         return (
             <button
                 key={tab.id}
@@ -392,7 +538,7 @@ function SidebarComponent({
                     animate={{ width: isExpanded ? 280 : 64 }}
                     transition={{ type: "spring", stiffness: 260, damping: 30 }}
                     className="bg-[#F7F8FA] flex flex-col h-full"
-                    
+
                 >
                     <div className="">
                         {isExpanded ? (
@@ -463,33 +609,6 @@ function SidebarComponent({
                             </div>
                         )}
                     </div>
-                    {/* {isExpanded ? (
-                        <div className="px-3 py-2 space-y-1">
-                            {navigationTabs.map(renderTab)}
-                        </div>
-                    ) : (
-                        <div className="px-2 py-2 space-y-1">
-                            {navigationTabs.map((tab) => {
-                                const Icon = tab.icon;
-                                const isActive = getIsActive(tab.id);
-                                
-                                return (
-                                    <button
-                                        key={tab.id}
-                                        onClick={() => handleNavigate(tab.id)}
-                                        className={`w-full flex items-center justify-center p-3 rounded-lg text-sm transition-colors cursor-pointer ${
-                                            isActive
-                                                ? "bg-white text-black font-bold"
-                                                : "text-black hover:bg-gray-100 font-medium"
-                                        }`}
-                                        title={tab.label}
-                                    >
-                                        <Icon className="h-4 w-4" />
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    )} */}
                 </motion.div>
             </aside>
 

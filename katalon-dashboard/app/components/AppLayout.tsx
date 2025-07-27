@@ -11,6 +11,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     const [selectedFeedbackId, setSelectedFeedbackId] = useState<string | null>(null);
     const [openConversationIds, setOpenConversationIds] = useState<string[]>([]);
     const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+    const [openTicketIds, setOpenTicketIds] = useState<string[]>([]);
+    const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
     const pathname = usePathname();
     const router = useRouter();
 
@@ -57,6 +59,27 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             // On other pages, clear selected conversation
             setSelectedConversationId(null);
         }
+
+        // Check if we're on a ticket detail page
+        const ticketDetailMatch = pathname?.match(/^\/ticket\/(.+)$/);
+        if (ticketDetailMatch) {
+            const ticketId = ticketDetailMatch[1];
+            setSelectedTicketId(ticketId);
+
+            // Add to open ticket IDs if not already there
+            setOpenTicketIds(prev => {
+                if (!prev.includes(ticketId)) {
+                    return [...prev, ticketId];
+                }
+                return prev;
+            });
+        } else if (pathname === "/ticket") {
+            // On ticket management page, clear selected ticket to avoid highlighting detail items
+            setSelectedTicketId(null);
+        } else {
+            // On other pages, clear selected ticket
+            setSelectedTicketId(null);
+        }
     }, [pathname]); // Removed openFeedbackIds from dependencies
 
     const handleFeedbackSelect = (id: string) => {
@@ -96,6 +119,25 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             }
         }
     };
+
+    const handleTicketSelect = (id: string) => {
+        if (!openTicketIds.includes(id)) {
+            setOpenTicketIds((prev) => [...prev, id]);
+        }
+        setSelectedTicketId(id);
+    };
+
+    const handleTicketClose = (id: string) => {
+        setOpenTicketIds((prev) => prev.filter((tid) => tid !== id));
+        if (selectedTicketId === id) {
+            setSelectedTicketId(null);
+            // If we're currently on the ticket detail page that's being closed,
+            // redirect to the ticket management page
+            if (pathname === `/ticket/${id}`) {
+                router.push('/ticket');
+            }
+        }
+    };
     return (
         <div className="flex h-screen bg-white">
             <Sidebar
@@ -109,6 +151,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 onConversationSelect={handleConversationSelect}
                 onConversationClose={handleConversationClose}
                 openConversationIds={openConversationIds}
+                selectedTicketId={selectedTicketId}
+                onTicketSelect={handleTicketSelect}
+                onTicketClose={handleTicketClose}
+                openTicketIds={openTicketIds}
             />
             <main className="flex-1 flex flex-col overflow-hidden">
                 <Header onOpenSidebar={() => setMobileOpen(true)} />
